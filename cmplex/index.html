@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complejo Deportivo | Pro Dashboard</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- SQL.js -->
+    <script src="sql-asm.js"></script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #020202;
+            color: #a1a1aa;
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 23, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card-hover:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to bottom right, #ffffff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .orange-glow {
+            box-shadow: 0 0 30px -10px rgba(249, 115, 22, 0.3);
+        }
+
+        /* Custom inputs */
+        input,
+        select {
+            color-scheme: dark;
+        }
+
+        /* Modal Transitions */
+        .modal-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+
+<body class="selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden">
+
+    <!-- Ambient Background Glow -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute top-[-20%] right-[10%] w-[800px] h-[800px] rounded-full bg-indigo-900/10 blur-[150px]">
+        </div>
+        <div class="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-orange-600/10 blur-[120px]">
+        </div>
+        <div class="absolute bottom-[-10%] left-[-5%] w-[800px] h-[800px] rounded-full bg-zinc-900/40 blur-[100px]">
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 w-full border-b border-white/5 bg-[#020202]/80 backdrop-blur-xl">
+        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-3">
+                <div
+                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.4)]">
+                    <i data-lucide="activity" class="h-5 w-5"></i>
+                </div>
+                <span class="text-sm font-semibold tracking-tight text-white">Complejo <span
+                        class="text-zinc-500">Deportivo</span></span>
+            </div>
+
+            <div class="hidden md:flex items-center gap-1 rounded-full border border-white/5 bg-white/5 p-1">
+                <a href="#overview"
+                    class="rounded-full bg-zinc-800 px-4 py-1.5 text-xs font-medium text-white shadow-sm transition-all">Resumen</a>
+                <a href="#reservations"
+                    class="rounded-full px-4 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all">Reservas</a>
+                <a href="#kiosk"
+                    class="rounded-full px-4 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all">Kiosco</a>
+                <a href="#reports"
+                    class="rounded-full px-4 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all">Reportes</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button
+                    class="group relative flex h-9 w-9 items-center justify-center rounded-full border border-zinc-800 text-zinc-400 hover:border-orange-500/50 hover:text-orange-500 transition-all">
+                    <i data-lucide="bell" class="h-4 w-4"></i>
+                    <span class="absolute top-2 right-2.5 h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+                </button>
+                <div
+                    class="h-9 w-9 rounded-full bg-zinc-800 overflow-hidden ring-1 ring-white/10 hover:ring-orange-500/50 transition-all cursor-pointer">
+                    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/3046c367-3448-42c1-9e29-19a82205a26e_320w.webp"
+                        alt="User" class="h-full w-full object-cover">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="sm:px-6 lg:px-8 max-w-7xl mx-auto pt-10 pb-20 space-y-20">
+
+        <!-- Hero Inspiration Section -->
+        <header id="overview" class="relative grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-7 relative z-10">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="flex -space-x-3">
+                        <img class="h-8 w-8 rounded-full border-2 border-black"
+                            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&amp;fit=crop&amp;w=64&amp;h=64"
+                            alt="">
+                        <img class="h-8 w-8 rounded-full border-2 border-black"
+                            src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&amp;fit=crop&amp;w=64&amp;h=64"
+                            alt="">
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-white">12.5K+</span>
+                        <span class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Miembros
+                            Activos</span>
+                    </div>
+                </div>
+
+                <h1 class="text-7xl sm:text-8xl font-bold tracking-tighter text-white leading-[0.9] mb-8">
+                    COMPLEX<br>
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-purple-600">DEPORTIVE
+                        RIZZ</span>
+                </h1>
+
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="openModal('reservationModal')"
+                        class="group flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full text-sm font-bold tracking-tight hover:bg-zinc-200 transition-all">
+                        <span>Nueva Reserva</span>
+                        <i data-lucide="arrow-up-right"
+                            class="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
+                    </button>
+                    <button onclick="openModal('clientModal')"
+                        class="flex items-center gap-2 border border-zinc-800 text-zinc-400 px-6 py-3 rounded-full text-sm font-medium hover:text-white hover:border-zinc-600 transition-all">
+                        <i data-lucide="user-plus" class="h-4 w-4"></i>
+                        <span>Nuevo Cliente</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Floating Abstract Cards -->
+            <div class="lg:col-span-5 relative h-[400px] w-full hidden lg:block">
+                <div
+                    class="absolute top-0 right-0 w-64 glass-panel p-5 rounded-2xl z-20 animate-[float_6s_ease-in-out_infinite]">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Ingresos</span>
+                        <i data-lucide="trending-up" class="h-4 w-4 text-emerald-400"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-white tracking-tight" id="heroRevenue">$0</div>
+                    <div class="text-xs text-zinc-500 mt-1">Ingresos Totales del Sistema</div>
+                    <div class="h-1 w-full bg-zinc-800 rounded-full mt-4 overflow-hidden">
+                        <div class="h-full w-[85%] bg-gradient-to-r from-orange-500 to-purple-500"></div>
+                    </div>
+                </div>
+
+                <div
+                    class="absolute bottom-10 left-10 w-72 glass-panel p-0 rounded-2xl overflow-hidden z-10 border-0 shadow-2xl shadow-orange-900/20">
+                    <img src="img/complex.png" class="w-full h-40 object-cover opacity-80">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent p-5 flex flex-col justify-end">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
+                            <span class="text-xs font-bold text-white tracking-wide uppercase">Reservado</span>
+                        </div>
+                        <div class="text-lg font-semibold text-white">Cancha 01: Sesión Privada</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD GRID -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+            <!-- LEFT COLUMN: RESERVATIONS & SCHEDULE (2/3 width) -->
+            <div class="xl:col-span-2 space-y-8" id="reservations">
+
+                <!-- Section Header -->
+                <div class="flex items-end justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white tracking-tight">Reservas</h2>
+                        <p class="text-sm text-zinc-500 mt-1">Gestionar disponibilidad de canchas y reservas.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openModal('reservationModal')"
+                            class="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upcoming List (Dynamic) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="reservationList">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- REPORTS SECTION -->
+                <div id="reports" class="pt-8">
+                    <h2 class="text-2xl font-bold text-white tracking-tight mb-6">Reportes de Rendimiento</h2>
+                    <div class="glass-panel p-6 rounded-2xl overflow-x-auto">
+                        <table class="w-full text-left text-sm text-zinc-400">
+                            <thead class="text-xs uppercase text-zinc-500 border-b border-white/5">
+                                <tr>
+                                    <th class="px-4 py-3">Cliente</th>
+                                    <th class="px-4 py-3">Teléfono</th>
+                                    <th class="px-4 py-3">Detalle Canchas</th>
+                                    <th class="px-4 py-3">Detalle Kiosco</th>
+                                    <th class="px-4 py-3 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody" class="divide-y divide-white/5">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: KIOSK & STOCK (1/3 width) -->
+            <aside class="xl:col-span-1 space-y-6" id="kiosk">
+                <div class="glass-panel rounded-2xl p-6 h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-white tracking-tight">Kiosco y Stock</h2>
+                        <div class="relative">
+                            <i data-lucide="shopping-bag"
+                                class="h-5 w-5 text-zinc-400 hover:text-white cursor-pointer transition-colors"></i>
+                            <span
+                                class="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-orange-500 ring-2 ring-black"></span>
+                        </div>
+                    </div>
+
+                    <!-- Product Grid (Dynamic) -->
+                    <div class="grid grid-cols-2 gap-3 mb-6 flex-grow" id="productGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- MODALS -->
+
+    <!-- New Client Modal -->
+    <div id="clientModal"
+        class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="modal-content glass-panel w-full max-w-md p-6 rounded-2xl border border-zinc-800">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Nuevo Cliente</h3>
+                <button onclick="closeModal('clientModal')" class="text-zinc-500 hover:text-white"><i data-lucide="x"
+                        class="h-5 w-5"></i></button>
+            </div>
+            <form id="newClientForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Nombre</label>
+                    <input type="text" id="clientName" required
+                        class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Email</label>
+                    <input type="email" id="clientEmail"
+                        class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Teléfono</label>
+                    <input type="tel" id="clientPhone"
+                        class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none">
+                </div>
+                <button type="submit"
+                    class="w-full bg-orange-600 text-white font-bold py-3 rounded-lg hover:bg-orange-500 transition-colors">Guardar
+                    Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Reservation Modal -->
+    <div id="reservationModal"
+        class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="modal-content glass-panel w-full max-w-md p-6 rounded-2xl border border-zinc-800">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Nueva Reserva</h3>
+                <button onclick="closeModal('reservationModal')" class="text-zinc-500 hover:text-white"><i
+                        data-lucide="x" class="h-5 w-5"></i></button>
+            </div>
+            <form id="reservationForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Cliente</label>
+                    <select id="resClient" required
+                        class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Cancha</label>
+                    <select id="resCourt" required
+                        class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">Fecha</label>
+                        <input type="date" id="resDate" required
+                            class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">Hora</label>
+                        <input type="time" id="resTime" required
+                            class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none">
+                    </div>
+                </div>
+                <button type="submit"
+                    class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-zinc-200 transition-colors">Confirmar
+                    Reserva</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sale Modal -->
+    <div id="saleModal"
+        class="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="modal-content glass-panel w-full max-w-sm p-6 rounded-2xl border border-zinc-800">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white" id="saleProductName">Producto</h3>
+                <button onclick="closeModal('saleModal')" class="text-zinc-500 hover:text-white"><i data-lucide="x"
+                        class="h-5 w-5"></i></button>
+            </div>
+            <form id="saleForm" class="space-y-4">
+                <input type="hidden" id="saleProductId">
+                <input type="hidden" id="saleProductPrice">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Cliente</label>
+                    <select id="saleClient" required
+                        class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">Cantidad</label>
+                    <input type="number" id="saleQty" min="1" value="1" required
+                        class="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none">
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit"
+                        class="flex-1 bg-orange-600 text-white font-bold py-3 rounded-lg hover:bg-orange-500 transition-colors">Vender</button>
+                    <button type="button" onclick="restockProduct()"
+                        class="flex-1 border border-zinc-700 text-zinc-400 font-bold py-3 rounded-lg hover:text-white hover:border-zinc-500 transition-colors">Reponer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- DATABASE & LOGIC ---
+        let db;
+
+        const SCHEMA_SQL = `
+        PRAGMA foreign_keys = ON;
+        DROP TABLE IF EXISTS Detalle_Venta;
+        DROP TABLE IF EXISTS Ventas_Kiosco;
+        DROP TABLE IF EXISTS Productos_Kiosco;
+        DROP TABLE IF EXISTS Reservas;
+        DROP TABLE IF EXISTS Canchas;
+        DROP TABLE IF EXISTS Clientes;
+        DROP TABLE IF EXISTS Tipos_Cancha;
+
+        CREATE TABLE Tipos_Cancha (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            deporte TEXT NOT NULL, 
+            superficie TEXT,       
+            precio_hora REAL NOT NULL
+        );
+
+        CREATE TABLE Clientes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            email TEXT UNIQUE,
+            telefono TEXT
+        );
+
+        CREATE TABLE Canchas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL, 
+            tipo_cancha_id INTEGER,
+            FOREIGN KEY (tipo_cancha_id) REFERENCES Tipos_Cancha(id)
+        );
+
+        CREATE TABLE Reservas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cliente_id INTEGER,
+            cancha_id INTEGER,
+            fecha DATE NOT NULL,
+            hora_inicio TIME NOT NULL,
+            total_pago REAL,
+            estado TEXT DEFAULT 'Confirmada',
+            FOREIGN KEY (cliente_id) REFERENCES Clientes(id),
+            FOREIGN KEY (cancha_id) REFERENCES Canchas(id)
+        );
+
+        CREATE TABLE Productos_Kiosco (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            categoria TEXT, 
+            precio REAL NOT NULL,
+            stock INTEGER DEFAULT 0 CHECK (stock >= 0)
+        );
+
+        CREATE TABLE Ventas_Kiosco (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cliente_id INTEGER,
+            fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (cliente_id) REFERENCES Clientes(id)
+        );
+
+        CREATE TABLE Detalle_Venta (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            venta_id INTEGER,
+            producto_id INTEGER,
+            cantidad INTEGER NOT NULL,
+            subtotal REAL,
+            FOREIGN KEY (venta_id) REFERENCES Ventas_Kiosco(id),
+            FOREIGN KEY (producto_id) REFERENCES Productos_Kiosco(id)
+        );
+
+        CREATE TRIGGER actualizar_stock_venta
+        AFTER INSERT ON Detalle_Venta
+        BEGIN
+            UPDATE Productos_Kiosco
+            SET stock = stock - NEW.cantidad
+            WHERE id = NEW.producto_id;
+        END;
+
+        INSERT INTO Tipos_Cancha (deporte, superficie, precio_hora) VALUES 
+        ('Fútbol 5', 'Sintético', 15000), 
+        ('Fútbol 7', 'Cesped', 20000), 
+        ('Tenis', 'Polvo de ladrillo', 8000), 
+        ('Pádel', 'Cristal', 12000);
+
+        INSERT INTO Canchas (nombre, tipo_cancha_id) VALUES 
+        ('Cancha Futbol 1', 1), 
+        ('Cancha Futbol 2', 2), 
+        ('Cancha Tenis 1', 3), 
+        ('Cancha Tenis 2', 3), 
+        ('Cancha Pádel 1', 4), 
+        ('Cancha Pádel 2', 4);
+
+        INSERT INTO Clientes (nombre, email, telefono) VALUES 
+        ('Juan Pérez', 'juan@mail.com', '3804625345'),
+        ('Maria Lopez', 'maria@mail.com', '3804213329'),
+        ('Carlos Gomez', 'carlos@mail.com', '3804890320');
+
+        INSERT INTO Productos_Kiosco (nombre, categoria, precio, stock) VALUES 
+        ('Gatorade', 'Bebida', 2500, 100), 
+        ('Agua Mineral', 'Bebida', 1500, 100), 
+        ('Turrón', 'Snack', 500, 50), 
+        ('Pelota de Tenis', 'Accesorio', 9000, 20);
+
+        INSERT INTO Reservas (cliente_id, cancha_id, fecha, hora_inicio, total_pago)
+        SELECT 1, c.id, '2023-10-25', '19:00', tc.precio_hora
+        FROM Canchas c JOIN Tipos_Cancha tc ON c.tipo_cancha_id = tc.id WHERE c.id = 1;
+
+        INSERT INTO Reservas (cliente_id, cancha_id, fecha, hora_inicio, total_pago)
+        SELECT 2, c.id, '2023-10-26', '10:00', tc.precio_hora
+        FROM Canchas c JOIN Tipos_Cancha tc ON c.tipo_cancha_id = tc.id WHERE c.id = 2;
+
+        INSERT INTO Reservas (cliente_id, cancha_id, fecha, hora_inicio, total_pago)
+        SELECT 3, c.id, '2023-10-27', '18:00', tc.precio_hora
+        FROM Canchas c JOIN Tipos_Cancha tc ON c.tipo_cancha_id = tc.id WHERE c.id = 5;
+
+        INSERT INTO Reservas (cliente_id, cancha_id, fecha, hora_inicio, total_pago)
+        SELECT 3, c.id, '2023-10-28', '20:00', tc.precio_hora
+        FROM Canchas c JOIN Tipos_Cancha tc ON c.tipo_cancha_id = tc.id WHERE c.id = 1;
+
+        INSERT INTO Ventas_Kiosco (cliente_id, fecha_hora) VALUES (1, '2023-10-25 20:05:00');
+        INSERT INTO Detalle_Venta (venta_id, producto_id, cantidad, subtotal)
+        SELECT 1, p.id, 2, p.precio*2 FROM Productos_Kiosco p WHERE p.nombre='Gatorade';
+        INSERT INTO Detalle_Venta (venta_id, producto_id, cantidad, subtotal)
+        SELECT 1, p.id, 1, p.precio*1 FROM Productos_Kiosco p WHERE p.nombre='Turrón';
+
+        INSERT INTO Ventas_Kiosco (cliente_id, fecha_hora) VALUES (3, '2023-10-27 17:50:00');
+        INSERT INTO Detalle_Venta (venta_id, producto_id, cantidad, subtotal)
+        SELECT 2, p.id, 1, p.precio*1 FROM Productos_Kiosco p WHERE p.nombre='Pelota de Tenis';
+        INSERT INTO Detalle_Venta (venta_id, producto_id, cantidad, subtotal)
+        SELECT 2, p.id, 1, p.precio*1 FROM Productos_Kiosco p WHERE p.nombre='Agua Mineral';
+
+        INSERT INTO Ventas_Kiosco (cliente_id, fecha_hora) VALUES (3, '2023-10-28 21:05:00');
+        INSERT INTO Detalle_Venta (venta_id, producto_id, cantidad, subtotal)
+        SELECT 3, p.id, 2, p.precio*2 FROM Productos_Kiosco p WHERE p.nombre='Gatorade';
+
+        INSERT INTO Ventas_Kiosco (cliente_id, fecha_hora) VALUES (2, '2023-10-25 19:25:00');
+        INSERT INTO Detalle_Venta (venta_id, producto_id, cantidad, subtotal)
+        SELECT 4, p.id, 3, p.precio*3 FROM Productos_Kiosco p WHERE p.nombre='Agua Mineral';
+
+        INSERT INTO Clientes (nombre, email, telefono) VALUES 
+        ('Pedro Paladio', 'PEDRO@Email.com', '380696969');
+        INSERT INTO Ventas_Kiosco (cliente_id, fecha_hora) VALUES (4, '2023-10-25 19:25:00');
+        INSERT INTO Detalle_Venta (venta_id, producto_id, cantidad, subtotal)
+        SELECT 5, p.id, 50, p.precio*50 FROM Productos_Kiosco p WHERE p.nombre='Gatorade';
+    `;
+
+        async function initDB() {
+            try {
+                const SQL = await initSqlJs();
+                db = new SQL.Database();
+                db.run(SCHEMA_SQL);
+                console.log("Base de datos inicializada");
+                refreshUI();
+            } catch (e) {
+                console.error(e);
+                alert("Error cargando la base de datos: " + e.message);
+            }
+        }
+
+        function runQuery(query) {
+            const res = db.exec(query);
+            if (res.length > 0) {
+                return {
+                    columns: res[0].columns,
+                    values: res[0].values
+                };
+            }
+            return { columns: [], values: [] };
+        }
+
+        function refreshUI() {
+            renderReservations();
+            renderProducts();
+            renderReports();
+            populateSelects();
+            lucide.createIcons();
+        }
+
+        // --- RENDERING ---
+
+        function renderReservations() {
+            const query = `
+                SELECT r.id, c.nombre, ca.nombre, r.fecha, r.hora_inicio
+                FROM Reservas r
+                JOIN Clientes c ON r.cliente_id = c.id
+                JOIN Canchas ca ON r.cancha_id = ca.id
+                ORDER BY r.fecha DESC, r.hora_inicio DESC
+                LIMIT 4
+            `;
+            const result = runQuery(query);
+            const container = document.getElementById('reservationList');
+            container.innerHTML = '';
+
+            result.values.forEach(row => {
+                const [id, cliente, cancha, fecha, hora] = row;
+                const card = document.createElement('div');
+                card.className = 'glass-panel p-5 rounded-xl border-l-4 border-l-orange-500 hover:bg-white/5 transition-colors';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="text-sm font-bold text-white">${cancha}</h4>
+                            <p class="text-xs text-zinc-400">${fecha} • ${hora}</p>
+                        </div>
+                        <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-400 text-[10px] font-bold uppercase">Reservado</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-3">
+                        <div class="h-6 w-6 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] text-white font-bold">
+                            ${cliente.charAt(0)}
+                        </div>
+                        <span class="text-xs text-zinc-300">Cliente: ${cliente}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderProducts() {
+            const query = `SELECT id, nombre, precio, stock FROM Productos_Kiosco`;
+            const result = runQuery(query);
+            const container = document.getElementById('productGrid');
+            container.innerHTML = '';
+
+            const imageMap = {
+                'Gatorade': 'img/gatorade.png',
+                'Agua Mineral': 'img/agua.png',
+                'Turrón': 'img/turron.png',
+                'Pelota de Tenis': 'img/pelota.jpg'
+            };
+
+            result.values.forEach(row => {
+                const [id, nombre, precio, stock] = row;
+                const isLowStock = stock < 10;
+                const isOutOfStock = stock === 0;
+                const imagePath = imageMap[nombre] || 'https://via.placeholder.com/150';
+
+                const card = document.createElement('div');
+                card.className = 'group relative rounded-xl bg-zinc-900/40 border border-zinc-800/50 p-3 hover:bg-zinc-800 hover:border-zinc-600 transition-all cursor-pointer';
+                card.onclick = () => openSaleModal(id, nombre, precio);
+
+                card.innerHTML = `
+                    <div class="aspect-square rounded-lg bg-zinc-800 mb-3 overflow-hidden relative flex items-center justify-center">
+                        <img src="${imagePath}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        ${isOutOfStock ? `
+                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <span class="text-[10px] font-bold text-white uppercase border border-white/20 px-2 py-1 rounded">Sin Stock</span>
+                        </div>` : ''}
+                        <button class="absolute bottom-2 right-2 h-6 w-6 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i data-lucide="plus" class="h-3 w-3"></i>
+                        </button>
+                    </div>
+                    <h3 class="text-xs font-bold text-white">${nombre}</h3>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-xs text-zinc-400">$${precio}</span>
+                        <span class="text-[10px] ${isLowStock ? 'text-red-400 font-medium' : 'text-zinc-600'}">${stock} restantes</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderReports() {
+            const query = `
+            SELECT 
+                c.nombre, c.telefono,
+                COALESCE(res.detalles, '---'),
+                COALESCE(kio.detalles, '---'),
+                (COALESCE(res.total,0) + COALESCE(kio.total,0)) AS gran_total
+            FROM Clientes c
+            LEFT JOIN (
+                SELECT cliente_id, SUM(total_pago) as total, GROUP_CONCAT(ca.nombre || ' (' || r.fecha || ' ' || r.hora_inicio || ')', '<br>') as detalles 
+                FROM Reservas r JOIN Canchas ca ON r.cancha_id = ca.id GROUP BY cliente_id
+            ) res ON c.id = res.cliente_id
+            LEFT JOIN (
+                SELECT vk.cliente_id, SUM(dv.subtotal) as total, GROUP_CONCAT(p.nombre || ' (x' || dv.cantidad || ')', '<br>') as detalles
+                FROM Ventas_Kiosco vk JOIN Detalle_Venta dv ON vk.id = dv.venta_id JOIN Productos_Kiosco p ON dv.producto_id = p.id GROUP BY vk.cliente_id
+            ) kio ON c.id = kio.cliente_id
+            ORDER BY gran_total DESC;
+            `;
+            const result = runQuery(query);
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = '';
+
+            let totalRevenue = 0;
+
+            result.values.forEach(row => {
+                const [nombre, telefono, detalleCanchas, detalleKiosco, total] = row;
+                totalRevenue += total;
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-white/5 transition-colors';
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-white align-top">${nombre}</td>
+                    <td class="px-4 py-3 text-zinc-500 align-top">${telefono || '-'}</td>
+                    <td class="px-4 py-3 text-xs text-zinc-400 align-top">${detalleCanchas}</td>
+                    <td class="px-4 py-3 text-xs text-zinc-400 align-top">${detalleKiosco}</td>
+                    <td class="px-4 py-3 text-right font-bold text-emerald-400 align-top">$${total}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('heroRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
+        }
+
+        function populateSelects() {
+            const clientes = runQuery("SELECT id, nombre FROM Clientes").values;
+            const canchas = runQuery("SELECT id, nombre FROM Canchas").values;
+
+            const clientSelects = [document.getElementById('resClient'), document.getElementById('saleClient')];
+            clientSelects.forEach(sel => {
+                sel.innerHTML = '';
+                clientes.forEach(([id, name]) => {
+                    sel.add(new Option(name, id));
+                });
+            });
+
+            const courtSelect = document.getElementById('resCourt');
+            courtSelect.innerHTML = '';
+            canchas.forEach(([id, name]) => {
+                courtSelect.add(new Option(name, id));
+            });
+        }
+
+        // --- MODAL LOGIC ---
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function openSaleModal(id, name, price) {
+            document.getElementById('saleProductId').value = id;
+            document.getElementById('saleProductPrice').value = price;
+            document.getElementById('saleProductName').textContent = name;
+            openModal('saleModal');
+        }
+
+        // --- FORM HANDLERS ---
+
+        document.getElementById('newClientForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('clientName').value;
+            const email = document.getElementById('clientEmail').value;
+            const phone = document.getElementById('clientPhone').value;
+
+            try {
+                db.run(`INSERT INTO Clientes (nombre, email, telefono) VALUES (?, ?, ?)`, [name, email, phone]);
+                alert('Cliente Agregado!');
+                closeModal('clientModal');
+                e.target.reset();
+                refreshUI();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        });
+
+        document.getElementById('reservationForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const client = document.getElementById('resClient').value;
+            const court = document.getElementById('resCourt').value;
+            const date = document.getElementById('resDate').value;
+            const time = document.getElementById('resTime').value;
+
+            // Get price
+            const priceRes = runQuery(`
+                SELECT tc.precio_hora FROM Canchas c 
+                JOIN Tipos_Cancha tc ON c.tipo_cancha_id = tc.id 
+                WHERE c.id = ${court}
+            `);
+            const price = priceRes.values[0][0];
+
+            try {
+                db.run(`INSERT INTO Reservas (cliente_id, cancha_id, fecha, hora_inicio, total_pago) 
+                    VALUES (?, ?, ?, ?, ?)`, [client, court, date, time, price]);
+                alert('Reserva Confirmada!');
+                closeModal('reservationModal');
+                e.target.reset();
+                refreshUI();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        });
+
+        document.getElementById('saleForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const client = document.getElementById('saleClient').value;
+            const prodId = document.getElementById('saleProductId').value;
+            const price = document.getElementById('saleProductPrice').value;
+            const qty = document.getElementById('saleQty').value;
+
+            // Check stock
+            const stock = runQuery(`SELECT stock FROM Productos_Kiosco WHERE id=${prodId}`).values[0][0];
+            if (stock < qty) {
+                alert('No hay suficiente stock!');
+                return;
+            }
+
+            try {
+                db.run("BEGIN TRANSACTION");
+                db.run(`INSERT INTO Ventas_Kiosco (cliente_id) VALUES (?)`, [client]);
+                const ventaId = db.exec("SELECT last_insert_rowid()")[0].values[0][0];
+                const subtotal = price * qty;
+                db.run(`INSERT INTO Detalle_Venta (venta_id, producto_id, cantidad, subtotal) 
+                    VALUES (?, ?, ?, ?)`, [ventaId, prodId, qty, subtotal]);
+                db.run("COMMIT");
+
+                alert('Venta Registrada!');
+                closeModal('saleModal');
+                e.target.reset();
+                refreshUI();
+            } catch (err) {
+                db.run("ROLLBACK");
+                alert('Error: ' + err.message);
+            }
+        });
+
+        function restockProduct() {
+            const prodId = document.getElementById('saleProductId').value;
+            const qty = document.getElementById('saleQty').value;
+            try {
+                db.run(`UPDATE Productos_Kiosco SET stock = stock + ? WHERE id = ?`, [qty, prodId]);
+                alert('Stock Actualizado!');
+                closeModal('saleModal');
+                refreshUI();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // --- INIT ---
+        initDB();
+
+    </script>
+</body>
+
+</html>
